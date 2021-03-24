@@ -8,7 +8,7 @@ TRAIN_FILE_PATH = 'dataset\\train_catvnoncat.h5'
 TEST_FILE_PATH  = 'dataset\\test_catvnoncat.h5'
 
 #train params
-EPOCHS          = 50000
+EPOCHS          = 20000
 LEARNING_RATE   = 0.005
 
 
@@ -31,6 +31,10 @@ def print_images(images):
 x_train, y_train = load_data_from_h5_file(TRAIN_FILE_PATH)
 x_test,  y_test  = load_data_from_h5_file(TEST_FILE_PATH)
 
+#flatten images
+x_test = x_test.reshape(x_test.shape[0], -1).T
+x_train = x_train.reshape(x_train.shape[0], -1).T
+
 #normalize the images
 x_test  = x_test  / 255.0
 x_train = x_train / 255.0
@@ -39,5 +43,6 @@ x_train = x_train / 255.0
 model = Logistic_Regression(EPOCHS, LEARNING_RATE)
 
 model.train_model(x_train, y_train)
+model.test_model(x_train, y_train)
 model.test_model(x_test, y_test)
 

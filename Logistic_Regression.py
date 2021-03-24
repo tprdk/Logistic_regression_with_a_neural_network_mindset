@@ -16,31 +16,23 @@ class Logistic_Regression:
         self.bias    = 0.0
 
 
-    def train_model(self, train_x, y_train):
-        # get row col channel prop of images
-        # channel is 3 if image is in rgb mode
-        count    = len(train_x)
-        row      = train_x[0].shape[0]
-        col      = train_x[0].shape[1]
-        channels = train_x[0].shape[2]
-
+    def train_model(self, x_train, y_train):
         #x_train shape (row * col * channel, 1)
         #y_train shape (1, count)
-        #weight shape  (m, 1)
-        x_train      = np.reshape(train_x, (row * col * channels, count))
-        self.weights = np.zeros(shape=(row * col * channels, 1), dtype='float32')
+        #weight shape  (count, 1)
+        count = x_train.shape[1]
+        self.weights = np.zeros(shape=(x_train.shape[0], 1), dtype='float32')
 
         for epoch in range(self.epoch):
             prediction   = sigmoid(np.dot(self.weights.T, x_train) + self.bias)
             error        = prediction - y_train
             #calculate cost
-            #cost formula =>
+            #cost formula => (-1 / count) * sum(y_train * log(prediction) + (1 -y_train) * log(1 - prediction))
             cost = (-1 / count) * np.sum(y_train * np.log(prediction) + (1 - y_train) * np.log(1 - prediction))
 
             #print cost and wrong prediction count on every 1000. epoch
             if epoch % 1000 == 0:
                 print(f'Epoch {epoch} - cost : {cost}')
-                print(f'wrong prediction count : {np.sum(np.abs(y_train - [1 if i >= 0.5 else 0 for i in prediction[0]]))}')
 
             # calculating gradients
             d_weights = (1 / count) * np.dot(x_train, error.T)
@@ -51,17 +43,11 @@ class Logistic_Regression:
             self.bias    = self.bias    - self.learning_rate * d_bias
 
 
-    def test_model(self, test_x, y_test):
-        count    = len(test_x)
-        row      = test_x[0].shape[0]
-        col      = test_x[0].shape[1]
-        channels = test_x[0].shape[2]
-
-        x_test   = np.reshape(test_x, (row * col * channels, count))
-
-        prediction   = sigmoid(np.dot(self.weights.T, x_test) + self.bias)
-
-        new_array   = [1.0 if predict >= 0.5 else 0.0 for predict in prediction[0]]
-
-        print(new_array)
+    def test_model(self, x_test, y_test):
+        prediction              = sigmoid(np.dot(self.weights.T, x_test) + self.bias)
+        test_count              = len(y_test)
+        wrong_prediction_count  = np.sum(np.abs(y_test - [1 if i >= 0.5 else 0 for i in prediction[0]]))
+        print(f'test samples count : {test_count} '
+              f'wrong predictions count : {wrong_prediction_count} \n'
+              f'accuracy : %{100 * (test_count - wrong_prediction_count )/test_count}')
 
